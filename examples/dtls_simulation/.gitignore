@@ -1,0 +1,3 @@
+# Build output and runtime artefacts produced by run_simulation.sh
+build/
+certs/
