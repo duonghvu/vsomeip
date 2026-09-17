@@ -4,7 +4,7 @@ This branch (`feature/dtls-udp`) adds native DTLS 1.2 over UDP support to
 vsomeip 3.7.2 using OpenSSL 3.0+. This document is the operator-facing
 guide for verifying the work on a stock Ubuntu machine.
 
-For the design rationale see [`vsomeip_DTLS_UDP_3_7_2_Plan.md`](../vsomeip_DTLS_UDP_3_7_2_Plan.md);
+For requirements and design rationale see [`documentation/dtls/vsomeip_DTLS_Requirements_Specification.pdf`](documentation/dtls/vsomeip_DTLS_Requirements_Specification.pdf);
 for the standalone simulation see [`examples/dtls_simulation/readme.md`](examples/dtls_simulation/readme.md).
 
 ---
@@ -240,7 +240,7 @@ Items 1–3 are mechanical edits constrained by the file inventory in plan
 
 When the gates in §5 are green:
 
-1. Sign the COVESA CLA: <https://covesa.global/contributor-license-agreement/>.
+1. Confirm with the COVESA maintainers which contributor agreement, if any, is required.
 2. Verify pre-commit hook is installed (per `CONTRIBUTING.md` §"How to use
    Clang Format"):
    ```bash

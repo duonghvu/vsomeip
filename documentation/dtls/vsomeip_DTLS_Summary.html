@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>vsomeip DTLS Summary</title>
+<meta name="author" content="duonghvu">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=block">
+<style>
+/* Printed engineering document: single light theme on purpose. */
+:root {
+  --paper: #FFFFFF;
+  --desk: #E8ECE9;
+  --ink: #17201D;
+  --muted: #56635E;
+  --rule: #D3DAD6;
+  --tint: #F3F6F4;
+  --spec: #2C5A86;
+  --spec-soft: #E5EDF5;
+  --verify: #1E6E52;
+  --verify-soft: #E2F0E9;
+  --done: #2E7D4F;
+  --done-soft: #E4F2E9;
+  --partial: #A8660A;
+  --partial-soft: #FBF1E0;
+  --todo: #86918D;
+  --bad: #A93A2E;
+  --bad-soft: #F8E7E4;
+  --display: "Barlow Semi Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@page {
+  size: A4;
+  margin: 16mm 15mm 18mm;
+  @bottom-left { content: "VSOMEIP-DTLS-SUM · v1.0 · Draft for community review"; font-family: "IBM Plex Mono", monospace; font-size: 8pt; color: #56635E; }
+  @bottom-right { content: "Page " counter(page) " of " counter(pages); font-family: "IBM Plex Mono", monospace; font-size: 8pt; color: #56635E; }
+}
+* { box-sizing: border-box; }
+html { background: var(--desk); }
+body {
+  margin: 0;
+  background: var(--desk);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 14px;
+  line-height: 1.55;
+  padding-inline: 16px;
+  padding-block: 32px;
+}
+.sheet {
+  max-width: 900px;
+  margin: 0 auto;
+  background: var(--paper);
+  padding: 48px 56px 56px;
+  box-shadow: 0 1px 3px rgba(23, 32, 29, 0.12);
+  display: grid;
+  gap: 40px;
+}
+h1, h2, h3 { font-family: var(--display); line-height: 1.15; margin: 0; text-wrap: balance; break-after: avoid; }
+h1 { font-size: 40px; font-weight: 700; }
+h2 { font-size: 25px; font-weight: 700; display: flex; gap: 12px; align-items: baseline; }
+h2 .n { font-family: var(--mono); font-size: 14px; font-weight: 500; color: var(--muted); }
+h3 { font-size: 17px; font-weight: 600; }
+p { margin: 0; max-width: 72ch; }
+code, .mono { font-family: var(--mono); font-size: 0.86em; }
+code { background: var(--tint); padding: 0 4px; border-radius: 3px; }
+a { color: var(--spec); }
+section { display: grid; gap: 14px; }
+.eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+/* title block */
+.titleblock { display: grid; gap: 14px; border-bottom: 3px solid var(--ink); padding-bottom: 20px; }
+.lede { font-size: 16px; color: var(--muted); }
+.control { width: 100%; border-collapse: collapse; font-size: 13px; }
+.control th, .control td { border: 1px solid var(--rule); padding: 6px 10px; text-align: left; vertical-align: top; }
+.control th { width: 22%; background: var(--tint); font-family: var(--mono); font-size: 10.5px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+
+/* status grid */
+.status { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0; border-top: 1px solid var(--rule); }
+.status div { display: grid; grid-template-columns: 14px 1fr; gap: 2px 10px; padding: 10px 12px 10px 0; border-bottom: 1px solid var(--rule); break-inside: avoid; }
+.status strong { font-weight: 600; }
+.status span.sub { grid-column: 2; font-size: 12.5px; color: var(--muted); }
+.dot { width: 11px; height: 11px; border-radius: 50%; margin-top: 5px; display: inline-block; flex: none; }
+.dot.done { background: var(--done); }
+.dot.partial { background: var(--partial); }
+.dot.todo { border: 1.6px solid var(--todo); }
+.dot.bad { background: var(--bad); }
+
+/* figures */
+figure { margin: 0; display: grid; gap: 10px; break-inside: avoid; }
+.fig { border: 1px solid var(--rule); border-radius: 4px; padding: 10px; overflow-x: auto; }
+.fig svg { display: block; width: 100%; min-width: 640px; height: auto; font-family: var(--body); }
+figcaption { font-size: 12.5px; color: var(--muted); }
+.b-up { fill: var(--tint); stroke: var(--muted); stroke-width: 1.2; }
+.b-done { fill: var(--done-soft); stroke: var(--done); stroke-width: 1.6; }
+.b-partial { fill: var(--partial-soft); stroke: var(--partial); stroke-width: 1.6; }
+.b-plan { fill: var(--paper); stroke: var(--muted); stroke-width: 1.4; stroke-dasharray: 6 4; }
+.t-name { font-size: 13.5px; font-weight: 600; fill: var(--ink); }
+.t-sub { font-size: 11px; fill: var(--muted); }
+.t-edge { font-size: 11px; fill: var(--muted); font-style: italic; }
+.edge { stroke: var(--ink); stroke-width: 1.3; fill: none; }
+.edge-dash { stroke: var(--muted); stroke-width: 1.2; fill: none; stroke-dasharray: 4 3; }
+.ah { fill: var(--ink); }
+.ah-m { fill: var(--muted); }
+.v-spec { fill: var(--spec-soft); stroke: var(--spec); stroke-width: 1.5; }
+.v-verify { fill: var(--verify-soft); stroke: var(--verify); stroke-width: 1.5; }
+.v-code { fill: var(--paper); stroke: var(--ink); stroke-width: 1.5; }
+.v-id { font-family: var(--mono); font-size: 11px; fill: var(--muted); }
+.v-side-spec { font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; fill: var(--spec); }
+.v-side-verify { font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; fill: var(--verify); }
+.st-done { fill: var(--done); }
+.st-partial { fill: var(--partial); }
+.st-todo { fill: none; stroke: var(--todo); stroke-width: 1.6; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 12px; color: var(--muted); align-items: center; }
+.legend span { display: inline-flex; gap: 6px; align-items: center; }
+.sw { width: 18px; height: 11px; border-radius: 2px; display: inline-block; }
+.sw.up { background: var(--tint); border: 1.2px solid var(--muted); }
+.sw.done { background: var(--done-soft); border: 1.5px solid var(--done); }
+.sw.partial { background: var(--partial-soft); border: 1.5px solid var(--partial); }
+.sw.plan { background: var(--paper); border: 1.4px dashed var(--muted); }
+
+/* tables */
+.tbl-wrap { overflow-x: auto; }
+table.data { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+table.data th, table.data td { text-align: left; vertical-align: top; padding: 6px 10px; border-bottom: 1px solid var(--rule); }
+table.data th { font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); border-bottom: 1.5px solid var(--ink); }
+table.data tr { break-inside: avoid; }
+td.num { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--mono); font-size: 11.5px; white-space: nowrap; }
+.tree { font-family: var(--mono); font-size: 11.5px; white-space: pre; color: var(--ink); }
+.tree .g { color: var(--muted); }
+.tag { display: inline-block; font-family: var(--mono); font-size: 10px; letter-spacing: 0.03em; padding: 1px 6px; border-radius: 3px; white-space: nowrap; }
+.tag.done { background: var(--done-soft); color: var(--done); }
+.tag.partial { background: var(--partial-soft); color: var(--partial); }
+.tag.plan { border: 1px dashed var(--todo); color: var(--muted); }
+.tag.mod { background: var(--spec-soft); color: var(--spec); }
+.tag.high { background: var(--bad-soft); color: var(--bad); font-weight: 500; }
+.tag.med { background: var(--partial-soft); color: var(--partial); }
+.tag.low { background: var(--tint); color: var(--muted); }
+
+pre {
+  margin: 0;
+  background: var(--tint);
+  border: 1px solid var(--rule);
+  padding: 10px 12px;
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.5;
+  overflow-x: auto;
+  white-space: pre;
+  break-inside: avoid;
+}
+pre .c { color: var(--muted); }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 20px; align-items: start; }
+ol.steps { margin: 0; padding-left: 22px; display: grid; gap: 8px; }
+ol.steps li { padding-left: 4px; }
+ol.steps li::marker { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.note { border-left: 3px solid var(--partial); background: var(--partial-soft); padding: 8px 12px; font-size: 13px; break-inside: avoid; }
+.post { border: 1px solid var(--rule); border-radius: 4px; padding: 14px 16px; font-size: 13px; display: grid; gap: 8px; break-inside: avoid; }
+.post .title { font-weight: 600; }
+footer { font-size: 11.5px; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 12px; }
+
+@media (max-width: 640px) {
+  body { padding-inline: 0; padding-block: 0; }
+  .sheet { padding: 28px 16px 40px; box-shadow: none; }
+  h1 { font-size: 32px; }
+}
+@media print {
+  html, body { background: #FFFFFF; }
+  body { padding: 0; font-size: 10pt; }
+  .sheet { max-width: none; padding: 0; box-shadow: none; gap: 26px; }
+  .fig svg { min-width: 0; }
+  .fig, .tbl-wrap { overflow: visible; }
+  a { color: var(--ink); text-decoration: none; }
+  .pb { break-before: page; }
+}
+</style>
+</head>
+<body>
+<main class="sheet">
+
+<header class="titleblock">
+  <div class="eyebrow">COVESA vsomeip · Native DTLS 1.2 over UDP</div>
+  <h1>vsomeip DTLS Summary</h1>
+  <p class="lede">What exists, how the software is structured, how it is verified, and how to review and test it. For reviewers, testers and integrators evaluating the <code>test/dtls-udp</code> branch.</p>
+  <table class="control">
+    <tr><th>Document ID</th><td class="mono">VSOMEIP-DTLS-SUM</td><th>Version</th><td>1.0 · Draft for community review</td></tr>
+    <tr><th>Author</th><td>duonghvu</td><th>Date</th><td>17 Sep 2026</td></tr>
+    <tr><th>Branch</th><td class="mono">duonghvu/vsomeip · test/dtls-udp</td><th>Base</th><td>COVESA vsomeip 3.7.5 (<span class="mono">7875a1cb</span>) + merge of <span class="mono">feature/dtls-udp</span> (3.7.2-based, <span class="mono">39066aa6</span>)</td></tr>
+    <tr><th>Companion</th><td colspan="3">vsomeip_DTLS_Requirements_Specification.pdf: requirements, implementation steps, open issues</td></tr>
+  </table>
+</header>
+
+<section>
+  <h2><span class="n">1</span>At a glance</h2>
+  <p>SOME/IP services can be protected with mutually authenticated DTLS 1.2 by configuration alone: a service sets <code>"unreliable_secure": &lt;port&gt;</code> in the JSON config and application code doesn't change. The crypto lives in the library, behind a backend interface (OpenSSL 3 first), in new classes next to the existing UDP endpoints. Service discovery multicast stays plaintext.</p>
+  <div class="status">
+    <div><i class="dot done"></i><strong>Crypto backend (OpenSSL 3)</strong><span class="sub">Built; handshake, mutual auth, data and close_notify pass in the standalone simulation</span></div>
+    <div><i class="dot done"></i><strong>Per-peer DTLS session</strong><span class="sub">Built; retransmit timer and callbacks exercised by the simulation</span></div>
+    <div><i class="dot partial"></i><strong>DTLS server / client endpoints</strong><span class="sub">Written, never compiled; must be adapted to the 3.7.5 endpoint API</span></div>
+    <div><i class="dot partial"></i><strong>JSON <code>dtls</code> parser</strong><span class="sub">Written; not yet called from configuration_impl</span></div>
+    <div><i class="dot todo"></i><strong>Factory, routing and config wiring</strong><span class="sub">Not started: DTLS endpoints are never created at runtime yet</span></div>
+    <div><i class="dot todo"></i><strong>Unit, integration and network tests</strong><span class="sub">Not started; only the standalone simulation exists</span></div>
+    <div><i class="dot bad"></i><strong>Cookie exchange</strong><span class="sub">Implemented incorrectly: cookie isn't tied to the client address (see §7)</span></div>
+    <div><i class="dot done"></i><strong>Build switch</strong><span class="sub"><code>ENABLE_DTLS</code>, default OFF; all DTLS code behind <code>VSOMEIP_HAS_DTLS</code></span></div>
+  </div>
+  <p class="note"><strong>Maturity:</strong> experimental. The branch shows the design and the verified crypto core, and asks for early feedback. It is not ready for production or for an upstream pull request.</p>
+</section>
+
+<section>
+  <h2><span class="n">2</span>Architecture</h2>
+  <p>Five architecture decisions shape the code. DTLS lives in <strong>new classes alongside</strong> the UDP endpoints, which stay unmodified. <strong>OpenSSL is reached only through <code>dtls::backend</code></strong>, so Mbed TLS or an HSM-backed library can replace it. There is <strong>one session per remote IP and port</strong>, DTLS is <strong>opt-in per service</strong>, and <strong>SD multicast stays plaintext</strong>.</p>
+  <figure>
+    <div class="fig">
+      <svg viewBox="0 0 900 600" role="img" aria-label="Layer diagram: the application calls the routing manager, which asks the endpoint manager to create either a plain UDP endpoint or a DTLS UDP endpoint depending on unreliable_secure. The DTLS endpoint owns the socket and feeds datagrams to a per-peer session, which uses the backend over OpenSSL 3. Routing and factory changes are planned; endpoints and config parser are written but unverified; session and backend are verified in simulation.">
+        <defs>
+          <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker>
+          <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah-m"/></marker>
+        </defs>
+
+        <line x1="450" y1="68" x2="450" y2="104" class="edge" marker-end="url(#a1)"/>
+        <text x="460" y="91" class="t-edge">offer · send · subscribe</text>
+        <line x1="450" y1="166" x2="450" y2="202" class="edge" marker-end="url(#a1)"/>
+        <text x="460" y="189" class="t-edge">create endpoint</text>
+        <line x1="240" y1="235" x2="296" y2="235" class="edge-dash" marker-end="url(#a2)"/>
+        <text x="268" y="226" class="t-edge" text-anchor="middle">settings</text>
+        <line x1="380" y1="264" x2="222" y2="316" class="edge" marker-end="url(#a1)"/>
+        <text x="292" y="306" class="t-edge" text-anchor="end">unreliable</text>
+        <line x1="520" y1="264" x2="678" y2="316" class="edge" marker-end="url(#a1)"/>
+        <text x="610" y="306" class="t-edge">unreliable_secure</text>
+        <line x1="185" y1="378" x2="185" y2="512" class="edge" marker-end="url(#a1)"/>
+        <text x="195" y="450" class="t-edge">plaintext UDP · SD multicast</text>
+        <line x1="715" y1="378" x2="715" y2="414" class="edge" marker-end="url(#a1)"/>
+        <text x="705" y="401" class="t-edge" text-anchor="end">feed_datagram · send_plaintext</text>
+        <line x1="715" y1="476" x2="715" y2="512" class="edge" marker-end="url(#a1)"/>
+        <text x="705" y="499" class="t-edge" text-anchor="end">feed · drain (memory BIO)</text>
+        <line x1="548" y1="366" x2="354" y2="538" class="edge" marker-end="url(#a1)"/>
+        <text x="470" y="478" class="t-edge">DTLS records</text>
+
+        <rect x="300" y="10" width="300" height="58" rx="4" class="b-up"/>
+        <text x="316" y="34" class="t-name">Application</text>
+        <text x="316" y="53" class="t-sub">vsomeip API unchanged</text>
+
+        <rect x="300" y="108" width="300" height="58" rx="4" class="b-plan"/>
+        <text x="316" y="132" class="t-name">routing_manager_impl</text>
+        <text x="316" y="151" class="t-sub">tag serviceinfo as DTLS before offer</text>
+
+        <rect x="20" y="206" width="220" height="58" rx="4" class="b-partial"/>
+        <text x="34" y="230" class="t-name">dtls_configuration</text>
+        <text x="34" y="249" class="t-sub">parses the JSON dtls block</text>
+
+        <rect x="300" y="206" width="300" height="58" rx="4" class="b-plan"/>
+        <text x="316" y="230" class="t-name">endpoint_manager_impl</text>
+        <text x="316" y="249" class="t-sub">factory branch on unreliable_secure</text>
+
+        <rect x="20" y="320" width="330" height="58" rx="4" class="b-up"/>
+        <text x="36" y="344" class="t-name">udp_server / udp_client endpoints</text>
+        <text x="36" y="363" class="t-sub">unchanged upstream classes</text>
+
+        <rect x="550" y="320" width="330" height="58" rx="4" class="b-partial"/>
+        <text x="566" y="344" class="t-name">dtls_udp_server / client endpoints</text>
+        <text x="566" y="363" class="t-sub">own the UDP socket · map peer → session</text>
+
+        <rect x="550" y="418" width="330" height="58" rx="4" class="b-done"/>
+        <text x="566" y="442" class="t-name">dtls::session (one per peer)</text>
+        <text x="566" y="461" class="t-sub">handshake · retransmit timer · callbacks</text>
+
+        <rect x="550" y="516" width="330" height="58" rx="4" class="b-done"/>
+        <text x="566" y="540" class="t-name">dtls::backend → OpenSSL 3</text>
+        <text x="566" y="559" class="t-sub">dtls_backend_openssl.cpp: only OpenSSL user</text>
+
+        <rect x="20" y="516" width="330" height="58" rx="4" class="b-up"/>
+        <text x="36" y="540" class="t-name">Ethernet / UDP</text>
+        <text x="36" y="559" class="t-sub">SD 30490 plaintext · service ports DTLS</text>
+      </svg>
+    </div>
+    <div class="legend">
+      <span><i class="sw up"></i>Upstream, unchanged</span>
+      <span><i class="sw done"></i>New, verified in simulation</span>
+      <span><i class="sw partial"></i>New, not yet compiled or wired</span>
+      <span><i class="sw plan"></i>Planned change</span>
+    </div>
+    <figcaption>The endpoint layer is the only place sockets and crypto meet. The session never touches the socket: the endpoint passes datagrams in, and the session hands ciphertext and plaintext back through callbacks. That is also what lets the crypto core be tested without a network.</figcaption>
+  </figure>
+</section>
+
+<section class="pb">
+  <h2><span class="n">3</span>Software file structure</h2>
+  <p>Every DTLS file on <code>test/dtls-udp</code>, plus the files the remaining work will add or change. Line counts are from the current branch.</p>
+  <div class="tbl-wrap">
+  <table class="data">
+    <thead><tr><th>Path</th><th>Lines</th><th>State</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td class="tree">vsomeip/</td><td></td><td></td><td></td></tr>
+      <tr><td class="tree"><span class="g">├─ </span>CMakeLists.txt</td><td class="num">+20</td><td><span class="tag mod">modified</span></td><td><code>ENABLE_DTLS</code> option, OpenSSL ≥ 3.0 lookup and link</td></tr>
+      <tr><td class="tree"><span class="g">├─ </span>README.md</td><td class="num"></td><td><span class="tag mod">modified</span></td><td>DTLS guidelines and community review section</td></tr>
+      <tr><td class="tree"><span class="g">├─ </span>DTLS_TESTING.md</td><td class="num">263</td><td><span class="tag done">added</span></td><td>Operator test guide (Ubuntu), production gate</td></tr>
+      <tr><td class="tree"><span class="g">├─ </span>implementation/endpoints/include/</td><td></td><td></td><td></td></tr>
+      <tr><td class="tree"><span class="g">│  ├─ </span>dtls_backend.hpp</td><td class="num">96</td><td><span class="tag done">verified</span></td><td><code>backend</code>, <code>context</code>, <code>session_state</code> interfaces; <code>result_e</code></td></tr>
+      <tr><td class="tree"><span class="g">│  ├─ </span>dtls_session.hpp</td><td class="num">101</td><td><span class="tag done">verified</span></td><td>Per-peer session: handshake driver, timer, callbacks</td></tr>
+      <tr><td class="tree"><span class="g">│  ├─ </span>dtls_udp_server_endpoint_impl.hpp</td><td class="num">97</td><td><span class="tag partial">not compiled</span></td><td>Server endpoint: socket, peer → session map</td></tr>
+      <tr><td class="tree"><span class="g">│  └─ </span>dtls_udp_client_endpoint_impl.hpp</td><td class="num">75</td><td><span class="tag partial">not compiled</span></td><td>Client endpoint: one session, queue until handshake</td></tr>
+      <tr><td class="tree"><span class="g">├─ </span>implementation/endpoints/src/</td><td></td><td></td><td></td></tr>
+      <tr><td class="tree"><span class="g">│  ├─ </span>dtls_backend_openssl.cpp</td><td class="num">419</td><td><span class="tag done">verified</span></td><td>OpenSSL 3 context, verify, cipher pin, cookies, memory BIO</td></tr>
+      <tr><td class="tree"><span class="g">│  ├─ </span>dtls_session.cpp</td><td class="num">192</td><td><span class="tag done">verified</span></td><td>Handshake pump, retransmit timer, shutdown</td></tr>
+      <tr><td class="tree"><span class="g">│  ├─ </span>dtls_udp_server_endpoint_impl.cpp</td><td class="num">285</td><td><span class="tag partial">not compiled</span></td><td>Receive, route to session, decrypt, deliver upward</td></tr>
+      <tr><td class="tree"><span class="g">│  ├─ </span>dtls_udp_client_endpoint_impl.cpp</td><td class="num">203</td><td><span class="tag partial">not compiled</span></td><td>Connect, handshake, flush queue</td></tr>
+      <tr><td class="tree"><span class="g">│  └─ </span>endpoint_manager_impl.cpp</td><td class="num"></td><td><span class="tag plan">planned</span></td><td>Create DTLS endpoints for <code>unreliable_secure</code></td></tr>
+      <tr><td class="tree"><span class="g">├─ </span>implementation/configuration/</td><td></td><td></td><td></td></tr>
+      <tr><td class="tree"><span class="g">│  ├─ </span>include/dtls_configuration.hpp</td><td class="num">41</td><td><span class="tag partial">not wired</span></td><td>Parsed <code>dtls</code> block, secure port map</td></tr>
+      <tr><td class="tree"><span class="g">│  ├─ </span>src/dtls_configuration.cpp</td><td class="num">65</td><td><span class="tag partial">not wired</span></td><td>JSON parser with auto-disable rules</td></tr>
+      <tr><td class="tree"><span class="g">│  ├─ </span>include/configuration_impl.hpp</td><td class="num"></td><td><span class="tag plan">planned</span></td><td>DTLS getters</td></tr>
+      <tr><td class="tree"><span class="g">│  └─ </span>src/configuration_impl.cpp</td><td class="num"></td><td><span class="tag plan">planned</span></td><td><code>load_dtls</code>, per-service <code>unreliable_secure</code></td></tr>
+      <tr><td class="tree"><span class="g">├─ </span>implementation/routing/src/routing_manager_impl.cpp</td><td class="num"></td><td><span class="tag plan">planned</span></td><td>Tag <code>serviceinfo</code> during preparation stage</td></tr>
+      <tr><td class="tree"><span class="g">├─ </span>examples/dtls_simulation/</td><td></td><td><span class="tag done">verified</span></td><td>Standalone round trip, no libvsomeip3</td></tr>
+      <tr><td class="tree"><span class="g">│  ├─ </span>CMakeLists.txt</td><td class="num">60</td><td></td><td>Builds only backend + session into two nodes</td></tr>
+      <tr><td class="tree"><span class="g">│  ├─ </span>dtls_server_node.cpp</td><td class="num">188</td><td></td><td>Echo server</td></tr>
+      <tr><td class="tree"><span class="g">│  ├─ </span>dtls_client_node.cpp</td><td class="num">242</td><td></td><td>Ping client, PASS/FAIL exit code</td></tr>
+      <tr><td class="tree"><span class="g">│  ├─ </span>gen_test_certs.sh</td><td class="num">43</td><td></td><td>Test CA + server/client ECDSA P-256 certs</td></tr>
+      <tr><td class="tree"><span class="g">│  ├─ </span>run_simulation.sh</td><td class="num">251</td><td></td><td>Build, run, render result.txt / result.svg</td></tr>
+      <tr><td class="tree"><span class="g">│  └─ </span>readme.md</td><td class="num">60</td><td></td><td>How to run</td></tr>
+      <tr><td class="tree"><span class="g">├─ </span>examples/hello_world_dtls/</td><td></td><td><span class="tag plan">planned</span></td><td>hello_world over DTLS with config only</td></tr>
+      <tr><td class="tree"><span class="g">├─ </span>test/unit_tests/dtls_tests/</td><td></td><td><span class="tag plan">planned</span></td><td><code>unit_dtls_*</code>: backend, session, config</td></tr>
+      <tr><td class="tree"><span class="g">├─ </span>test/network_tests/dtls_tests/</td><td></td><td><span class="tag plan">planned</span></td><td>Two-host, interop, stress, failure cases</td></tr>
+      <tr><td class="tree"><span class="g">└─ </span>documentation/dtls/</td><td></td><td><span class="tag done">added</span></td><td>This summary and the requirements specification (HTML + PDF)</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">4</span>Configuration</h2>
+  <div class="two">
+<pre>{
+  "dtls": {
+    "enable": "true",
+    "version": "1.2",
+    "cipher_list": "ECDHE-ECDSA-AES128-GCM-SHA256",
+    "certificate": "/etc/vsomeip/ecu.pem",
+    "private_key": "/etc/vsomeip/ecu.key",
+    "ca_bundle":   "/etc/vsomeip/ca.pem",
+    "verify_peer": "true",
+    "handshake_timeout_ms": 5000,
+    "cookie_exchange": "true"
+  },
+  "services": [
+    { "service": "0x2444", "instance": "0x0001",
+      "unreliable_secure": "32444" }
+  ]
+}</pre>
+    <ul class="plain">
+      <li><strong>Additive only.</strong> Existing keys keep their meaning; <code>unreliable</code> still means plaintext UDP.</li>
+      <li><strong>Mutual auth by default.</strong> With <code>verify_peer</code> on, a missing <code>ca_bundle</code> disables DTLS instead of silently accepting any peer.</li>
+      <li><strong>Missing certificate or key</strong> also disables DTLS.</li>
+      <li><strong>Transition:</strong> <code>unreliable</code> and <code>unreliable_secure</code> together are allowed only while peers migrate, and should log a warning.</li>
+      <li><strong>Not yet active:</strong> the parser exists but <code>configuration_impl</code> doesn't call it, and <code>handshake_timeout_ms</code> is parsed but not enforced.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="pb">
+  <h2><span class="n">5</span>Verification approach</h2>
+  <p>Each left-side level of the V-model has a matching test level. Test specs are written together with the level they verify. Process IDs follow Automotive SPICE 3.1.</p>
+  <figure>
+    <div class="fig">
+      <svg viewBox="0 0 1000 600" role="img" aria-label="V-model with specification levels on the left, code at the bottom, verification levels on the right. Architecture is done; requirements, design and code are partial; no verification level has started.">
+        <defs>
+          <marker id="v1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker>
+          <marker id="v2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah-m"/></marker>
+        </defs>
+        <text x="20" y="30" class="v-side-spec">SPECIFICATION ↓</text>
+        <text x="980" y="30" class="v-side-verify" text-anchor="end">VERIFICATION ↑</text>
+        <line x1="260" y1="83" x2="736" y2="83" class="edge-dash" marker-end="url(#v2)"/>
+        <text x="498" y="76" class="t-edge" text-anchor="middle">acceptance criteria</text>
+        <line x1="320" y1="193" x2="676" y2="193" class="edge-dash" marker-end="url(#v2)"/>
+        <text x="498" y="186" class="t-edge" text-anchor="middle">qualification test spec</text>
+        <line x1="380" y1="303" x2="616" y2="303" class="edge-dash" marker-end="url(#v2)"/>
+        <text x="498" y="296" class="t-edge" text-anchor="middle">integration test spec</text>
+        <line x1="440" y1="413" x2="556" y2="413" class="edge-dash" marker-end="url(#v2)"/>
+        <text x="498" y="406" class="t-edge" text-anchor="middle">unit test spec</text>
+        <line x1="140" y1="116" x2="198" y2="158" class="edge" marker-end="url(#v1)"/>
+        <line x1="200" y1="226" x2="258" y2="268" class="edge" marker-end="url(#v1)"/>
+        <line x1="260" y1="336" x2="318" y2="378" class="edge" marker-end="url(#v1)"/>
+        <line x1="320" y1="446" x2="416" y2="488" class="edge" marker-end="url(#v1)"/>
+        <line x1="584" y1="490" x2="678" y2="449" class="edge" marker-end="url(#v1)"/>
+        <line x1="680" y1="380" x2="738" y2="339" class="edge" marker-end="url(#v1)"/>
+        <line x1="740" y1="270" x2="798" y2="229" class="edge" marker-end="url(#v1)"/>
+        <line x1="800" y1="160" x2="858" y2="119" class="edge" marker-end="url(#v1)"/>
+
+        <rect x="20" y="50" width="240" height="66" rx="4" class="v-spec"/>
+        <text x="34" y="70" class="v-id">SYS.2</text><text x="34" y="89" class="t-name">System requirements</text><text x="34" y="106" class="t-sub">SYS-DTLS-001…006</text>
+        <circle cx="244" cy="66" r="5" class="st-partial"/>
+        <rect x="80" y="160" width="240" height="66" rx="4" class="v-spec"/>
+        <text x="94" y="180" class="v-id">SWE.1</text><text x="94" y="199" class="t-name">SW requirements</text><text x="94" y="216" class="t-sub">SWR-DTLS-001…070 (draft)</text>
+        <circle cx="304" cy="176" r="5" class="st-partial"/>
+        <rect x="140" y="270" width="240" height="66" rx="4" class="v-spec"/>
+        <text x="154" y="290" class="v-id">SWE.2</text><text x="154" y="309" class="t-name">SW architecture</text><text x="154" y="326" class="t-sub">ADR-001…006</text>
+        <circle cx="364" cy="286" r="5" class="st-done"/>
+        <rect x="200" y="380" width="240" height="66" rx="4" class="v-spec"/>
+        <text x="214" y="400" class="v-id">SWE.3</text><text x="214" y="419" class="t-name">Detailed design</text><text x="214" y="436" class="t-sub">dtls::backend / session APIs</text>
+        <circle cx="424" cy="396" r="5" class="st-partial"/>
+        <rect x="380" y="490" width="240" height="66" rx="4" class="v-code"/>
+        <text x="394" y="510" class="v-id">SWE.3</text><text x="394" y="529" class="t-name">Unit construction (code)</text><text x="394" y="546" class="t-sub">C++17 · test/dtls-udp</text>
+        <circle cx="604" cy="506" r="5" class="st-partial"/>
+        <rect x="560" y="380" width="240" height="66" rx="4" class="v-verify"/>
+        <text x="574" y="400" class="v-id">SWE.4</text><text x="574" y="419" class="t-name">Unit verification</text><text x="574" y="436" class="t-sub">gtest unit_dtls_* · no sockets</text>
+        <circle cx="784" cy="396" r="5" class="st-todo"/>
+        <rect x="620" y="270" width="240" height="66" rx="4" class="v-verify"/>
+        <text x="634" y="290" class="v-id">SWE.5</text><text x="634" y="309" class="t-name">SW integration test</text><text x="634" y="326" class="t-sub">fake-socket endpoints + ECUs</text>
+        <circle cx="844" cy="286" r="5" class="st-todo"/>
+        <rect x="680" y="160" width="240" height="66" rx="4" class="v-verify"/>
+        <text x="694" y="180" class="v-id">SWE.6</text><text x="694" y="199" class="t-name">SW qualification test</text><text x="694" y="216" class="t-sub">2 containers · interop · ON/OFF</text>
+        <circle cx="904" cy="176" r="5" class="st-todo"/>
+        <rect x="740" y="50" width="240" height="66" rx="4" class="v-verify"/>
+        <text x="754" y="70" class="v-id">SYS.5</text><text x="754" y="89" class="t-name">System qualification test</text><text x="754" y="106" class="t-sub">ECU bench · automotive Ethernet</text>
+        <circle cx="964" cy="66" r="5" class="st-todo"/>
+        <text x="500" y="592" class="t-sub" text-anchor="middle">Outside the V: examples/dtls_simulation is a standalone crypto smoke test (passing). It is not evidence for any level.</text>
+      </svg>
+    </div>
+    <div class="legend">
+      <span><i class="dot done"></i>Done</span><span><i class="dot partial"></i>Partial</span><span><i class="dot todo"></i>Not started</span>
+    </div>
+  </figure>
+  <div class="tbl-wrap">
+  <table class="data">
+    <thead><tr><th>Level</th><th>What is exercised</th><th>Where</th><th>Runs on</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Unit</strong> · SWE.4</td><td>Backend and session through in-memory byte passing: handshake, wrong CA, expired cert, loss and reordering with <code>handle_timeout()</code>, config parser</td><td><code>test/unit_tests/dtls_tests/</code></td><td>macOS, Linux, CI (<code>^unit_</code>)</td></tr>
+      <tr><td><strong>Component</strong> · SWE.5</td><td>One DTLS endpoint with injected fake sockets: session lifecycle, queue flush, close_notify on stop</td><td><code>test/unit_tests/endpoint_tests/</code></td><td>Linux, CI</td></tr>
+      <tr><td><strong>Multi-ECU</strong> · SWE.5</td><td>Config → routing → SD → endpoints → crypto for two ECUs in one process; drop, delay, disconnect; hybrid mode</td><td><code>test/network_tests/fake_socket_tests/</code></td><td>Linux, CI</td></tr>
+      <tr><td><strong>Qualification</strong> · SWE.6</td><td>Real processes and sockets on two containers; interop with <code>openssl s_client/s_server</code>; tcpdump; 1000-handshake stress; <code>ENABLE_DTLS</code> ON and OFF</td><td><code>test/network_tests/dtls_tests/</code>, <code>zuul/network-tests</code></td><td>Linux containers, nightly</td></tr>
+      <tr><td><strong>System</strong> · SYS.5</td><td>Target ECUs: Ethernet MTU, OEM PKI, revocation, peer reboot, CPU and latency budget</td><td>Bench</td><td>Integration bench</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="two">
+    <div>
+      <h3>What the simulation proves</h3>
+      <ul class="plain">
+        <li>OpenSSL 3 context, ECDSA certificates, CA chain check</li>
+        <li>Full DTLS 1.2 handshake with HelloVerifyRequest</li>
+        <li>Mutual authentication with the pinned cipher</li>
+        <li>Encrypted data both ways; graceful close_notify</li>
+      </ul>
+    </div>
+    <div>
+      <h3>What it does not prove</h3>
+      <ul class="plain">
+        <li>That the vsomeip endpoints compile or work</li>
+        <li>Config → factory → endpoint creation; SD → connect → handshake</li>
+        <li>SOME/IP messages and TP over DTLS; loss, many peers, MTU</li>
+        <li>Failure cases, hybrid mode, OFF build identical to upstream</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">6</span>Try it</h2>
+  <div class="two">
+    <div style="display:grid;gap:8px">
+      <h3>Standalone simulation (macOS or Linux)</h3>
+<pre>git clone -b test/dtls-udp https://github.com/duonghvu/vsomeip.git
+cd vsomeip/examples/dtls_simulation
+./run_simulation.sh --count 5
+<span class="c"># expect: DTLS simulation: PASS</span>
+<span class="c"># outputs: build/result.txt, build/result.svg</span></pre>
+    </div>
+    <div style="display:grid;gap:8px">
+      <h3>Full library (Linux, or the repo Dockerfile)</h3>
+<pre>sudo apt-get install -y libssl-dev libboost-all-dev googletest
+cmake -Bbuild -DENABLE_DTLS=OFF -DGTEST_ROOT=/usr/src/googletest .
+cmake --build build --target build_tests -j
+ctest --test-dir build -R '^unit_' --output-on-failure
+<span class="c"># ENABLE_DTLS=ON fails to compile today (see §7)</span></pre>
+    </div>
+  </div>
+</section>
+
+<section class="pb">
+  <h2><span class="n">7</span>Known issues from code review</h2>
+  <p>Found by reading the code on 16–17 Sep 2026. None has been fixed yet. The first two block any meaningful community test of the full library.</p>
+  <div class="tbl-wrap">
+  <table class="data">
+    <thead><tr><th>Severity</th><th>Issue</th><th>Location</th><th>Consequence</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag high">High</span></td><td>The cookie is a copy of one process-wide secret, not an HMAC of the client address (the code comment says it is). If <code>RAND_bytes</code> fails, the secret falls back to predictable bytes.</td><td class="mono">dtls_backend_openssl.cpp:33–67</td><td>Anyone who gets one cookie can use it from any spoofed address, so the cookie exchange gives no DoS or amplification protection.</td></tr>
+      <tr><td><span class="tag high">High</span></td><td>DTLS endpoints don't compile: the server calls <code>asio_socket_factory::create_udp_socket(io_, _error)</code> as a static function, and both endpoints override the pre-3.7.5 <code>tp_segmentation_enabled(service_t, instance_t, method_t)</code>.</td><td class="mono">dtls_udp_server_endpoint_impl.cpp:36; *_endpoint_impl.hpp</td><td><code>ENABLE_DTLS=ON</code> fails to build the library.</td></tr>
+      <tr><td><span class="tag med">Medium</span></td><td>Any new source address creates a session; there is no limit and no idle eviction.</td><td class="mono">dtls_udp_server_endpoint_impl.cpp</td><td>Memory exhaustion from spoofed traffic.</td></tr>
+      <tr><td><span class="tag med">Medium</span></td><td>Session callbacks capture <code>shared_from_this()</code>, creating endpoint → session → callback → endpoint cycles.</td><td class="mono">both endpoint .cpp files</td><td>Endpoints and sessions are never freed until stop or restart.</td></tr>
+      <tr><td><span class="tag med">Medium</span></td><td><code>handshake_timeout_ms</code> is parsed but never enforced; the link MTU is hard-coded to 1500.</td><td class="mono">dtls_backend_openssl.cpp:200</td><td>Stalled handshakes hold state; smaller-MTU networks may fragment or fail.</td></tr>
+      <tr><td><span class="tag med">Medium</span></td><td>The server can send only to peers that already completed a handshake.</td><td class="mono">dtls_udp_server_endpoint_impl.cpp</td><td>Events can't reach subscribers without an established session.</td></tr>
+      <tr><td><span class="tag low">Low</span></td><td><code>cipher_list</code> uses OpenSSL syntax, and the server session factory isn't given the peer address.</td><td class="mono">dtls_backend.hpp</td><td>Blocks a second backend (Mbed TLS) and a correct cookie design.</td></tr>
+      <tr><td><span class="tag low">Low</span></td><td>The minimum is OpenSSL 3.0, which reached end of life in Sep 2026.</td><td class="mono">CMakeLists.txt</td><td>Recommend 3.5 LTS as the documented baseline.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">8</span>Asking the vsomeip community to review and test</h2>
+  <p>COVESA hosts vsomeip. Its GitHub repository has Discussions and Issues enabled, and the project holds a monthly community call (third Monday of the month, 16:00 CET). COVESA mailing lists and Slack access are requested through the COVESA wiki.</p>
+  <ol class="steps">
+    <li><strong>Fix the two High issues first.</strong> Reviewers lose interest quickly in code that doesn't build, and a broken cookie design will be the first security comment.</li>
+    <li><strong>Open a GitHub Discussion, not a pull request.</strong> Post an RFC in COVESA/vsomeip Discussions, link <code>test/dtls-udp</code> and both PDFs, and label it experimental.</li>
+    <li><strong>Ask concrete questions.</strong> How clients learn a remote service needs DTLS, fail-closed vs fallback, server-initiated events. Maintainers answer specific design questions faster than "please review".</li>
+    <li><strong>Give testers a recipe and a report format.</strong> The simulation command, the build ON/OFF commands, and: OS, compiler, Boost, OpenSSL version, command, result, logs.</li>
+    <li><strong>Ask for a slot at the monthly community call</strong> to present the design (10 minutes, using this summary).</li>
+    <li><strong>Split the upstream contribution</strong> once feedback is in and tests are green: (1) backend + session + unit tests, (2) endpoints, (3) config and factory wiring, (4) example and docs. Each as a PR against <code>master</code>, following CONTRIBUTING.md (clang-format pre-commit hook).</li>
+  </ol>
+  <div class="post">
+    <div class="eyebrow">Draft discussion post</div>
+    <div class="title">RFC: opt-in DTLS 1.2 over UDP for vsomeip (experimental branch, feedback wanted)</div>
+    <p>We are prototyping native DTLS 1.2 for unicast SOME/IP over UDP, enabled per service by config (<code>"unreliable_secure": &lt;port&gt;</code>) with no application changes. SD multicast stays plaintext. DTLS lives in new endpoint classes next to the UDP endpoints, with crypto behind a backend interface (OpenSSL 3 first). It is compiled only with <code>-DENABLE_DTLS=ON</code>.</p>
+    <p>Branch: <code>duonghvu/vsomeip@test/dtls-udp</code> (vsomeip 3.7.5 base). Summary and requirements: <code>documentation/dtls/</code>. Status: crypto core verified in a standalone simulation; library wiring and tests not done.</p>
+    <p>Questions: (1) Would maintainers accept this direction upstream, and in what PR split? (2) Should the client learn that a remote instance needs DTLS from local config only, or is an SD option acceptable? (3) Fail closed when DTLS is misconfigured, or fall back? (4) Preferred way for the server to reach subscribers before they complete a handshake?</p>
+    <p>Testers: please run <code>examples/dtls_simulation/run_simulation.sh</code> and report OS, compiler, Boost and OpenSSL versions with the result.</p>
+  </div>
+</section>
+
+<footer>
+  Author: duonghvu · Drafted with Claude Code assistance · Sources: vsomeip_DTLS_UDP_3_7_2_Plan.md rev 0.2, code on <span class="mono">test/dtls-udp</span>, COVESA vsomeip 3.7.5 · Licence of this document follows the repository (MPL-2.0).
+</footer>
+
+</main>
+</body>
+</html>

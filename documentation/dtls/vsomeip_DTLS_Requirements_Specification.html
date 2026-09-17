@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>vsomeip DTLS Requirements Specification</title>
+<meta name="author" content="duonghvu">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=block">
+<style>
+/* Printed engineering document: single light theme on purpose. */
+:root {
+  --paper: #FFFFFF;
+  --desk: #E8ECE9;
+  --ink: #17201D;
+  --muted: #56635E;
+  --rule: #D3DAD6;
+  --tint: #F3F6F4;
+  --spec: #2C5A86;
+  --spec-soft: #E5EDF5;
+  --verify: #1E6E52;
+  --verify-soft: #E2F0E9;
+  --done: #2E7D4F;
+  --done-soft: #E4F2E9;
+  --partial: #A8660A;
+  --partial-soft: #FBF1E0;
+  --todo: #86918D;
+  --bad: #A93A2E;
+  --bad-soft: #F8E7E4;
+  --display: "Barlow Semi Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@page {
+  size: A4;
+  margin: 16mm 15mm 18mm;
+  @bottom-left { content: "VSOMEIP-DTLS-SRS · v0.3 · Draft for review"; font-family: "IBM Plex Mono", monospace; font-size: 8pt; color: #56635E; }
+  @bottom-right { content: "Page " counter(page) " of " counter(pages); font-family: "IBM Plex Mono", monospace; font-size: 8pt; color: #56635E; }
+}
+* { box-sizing: border-box; }
+html { background: var(--desk); }
+body {
+  margin: 0;
+  background: var(--desk);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 14px;
+  line-height: 1.55;
+  padding-inline: 16px;
+  padding-block: 32px;
+}
+.sheet {
+  max-width: 900px;
+  margin: 0 auto;
+  background: var(--paper);
+  padding: 48px 56px 56px;
+  box-shadow: 0 1px 3px rgba(23, 32, 29, 0.12);
+  display: grid;
+  gap: 40px;
+}
+h1, h2, h3 { font-family: var(--display); line-height: 1.15; margin: 0; text-wrap: balance; break-after: avoid; }
+h1 { font-size: 40px; font-weight: 700; }
+h2 { font-size: 25px; font-weight: 700; display: flex; gap: 12px; align-items: baseline; }
+h2 .n { font-family: var(--mono); font-size: 14px; font-weight: 500; color: var(--muted); }
+h3 { font-size: 17px; font-weight: 600; }
+p { margin: 0; max-width: 72ch; }
+code, .mono { font-family: var(--mono); font-size: 0.86em; }
+code { background: var(--tint); padding: 0 4px; border-radius: 3px; }
+a { color: var(--spec); }
+section { display: grid; gap: 14px; }
+.eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+/* title block */
+.titleblock { display: grid; gap: 14px; border-bottom: 3px solid var(--ink); padding-bottom: 20px; }
+.lede { font-size: 16px; color: var(--muted); }
+.control { width: 100%; border-collapse: collapse; font-size: 13px; }
+.control th, .control td { border: 1px solid var(--rule); padding: 6px 10px; text-align: left; vertical-align: top; }
+.control th { width: 22%; background: var(--tint); font-family: var(--mono); font-size: 10.5px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+
+/* status grid */
+.status { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0; border-top: 1px solid var(--rule); }
+.status div { display: grid; grid-template-columns: 14px 1fr; gap: 2px 10px; padding: 10px 12px 10px 0; border-bottom: 1px solid var(--rule); break-inside: avoid; }
+.status strong { font-weight: 600; }
+.status span.sub { grid-column: 2; font-size: 12.5px; color: var(--muted); }
+.dot { width: 11px; height: 11px; border-radius: 50%; margin-top: 5px; display: inline-block; flex: none; }
+.dot.done { background: var(--done); }
+.dot.partial { background: var(--partial); }
+.dot.todo { border: 1.6px solid var(--todo); }
+.dot.bad { background: var(--bad); }
+
+/* figures */
+figure { margin: 0; display: grid; gap: 10px; break-inside: avoid; }
+.fig { border: 1px solid var(--rule); border-radius: 4px; padding: 10px; overflow-x: auto; }
+.fig svg { display: block; width: 100%; min-width: 640px; height: auto; font-family: var(--body); }
+figcaption { font-size: 12.5px; color: var(--muted); }
+.b-up { fill: var(--tint); stroke: var(--muted); stroke-width: 1.2; }
+.b-done { fill: var(--done-soft); stroke: var(--done); stroke-width: 1.6; }
+.b-partial { fill: var(--partial-soft); stroke: var(--partial); stroke-width: 1.6; }
+.b-plan { fill: var(--paper); stroke: var(--muted); stroke-width: 1.4; stroke-dasharray: 6 4; }
+.t-name { font-size: 13.5px; font-weight: 600; fill: var(--ink); }
+.t-sub { font-size: 11px; fill: var(--muted); }
+.t-edge { font-size: 11px; fill: var(--muted); font-style: italic; }
+.edge { stroke: var(--ink); stroke-width: 1.3; fill: none; }
+.edge-dash { stroke: var(--muted); stroke-width: 1.2; fill: none; stroke-dasharray: 4 3; }
+.ah { fill: var(--ink); }
+.ah-m { fill: var(--muted); }
+.v-spec { fill: var(--spec-soft); stroke: var(--spec); stroke-width: 1.5; }
+.v-verify { fill: var(--verify-soft); stroke: var(--verify); stroke-width: 1.5; }
+.v-code { fill: var(--paper); stroke: var(--ink); stroke-width: 1.5; }
+.v-id { font-family: var(--mono); font-size: 11px; fill: var(--muted); }
+.v-side-spec { font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; fill: var(--spec); }
+.v-side-verify { font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; fill: var(--verify); }
+.st-done { fill: var(--done); }
+.st-partial { fill: var(--partial); }
+.st-todo { fill: none; stroke: var(--todo); stroke-width: 1.6; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 12px; color: var(--muted); align-items: center; }
+.legend span { display: inline-flex; gap: 6px; align-items: center; }
+.sw { width: 18px; height: 11px; border-radius: 2px; display: inline-block; }
+.sw.up { background: var(--tint); border: 1.2px solid var(--muted); }
+.sw.done { background: var(--done-soft); border: 1.5px solid var(--done); }
+.sw.partial { background: var(--partial-soft); border: 1.5px solid var(--partial); }
+.sw.plan { background: var(--paper); border: 1.4px dashed var(--muted); }
+
+/* tables */
+.tbl-wrap { overflow-x: auto; }
+table.data { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+table.data th, table.data td { text-align: left; vertical-align: top; padding: 6px 10px; border-bottom: 1px solid var(--rule); }
+table.data th { font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); border-bottom: 1.5px solid var(--ink); }
+table.data tr { break-inside: avoid; }
+td.num { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--mono); font-size: 11.5px; white-space: nowrap; }
+.tree { font-family: var(--mono); font-size: 11.5px; white-space: pre; color: var(--ink); }
+.tree .g { color: var(--muted); }
+.tag { display: inline-block; font-family: var(--mono); font-size: 10px; letter-spacing: 0.03em; padding: 1px 6px; border-radius: 3px; white-space: nowrap; }
+.tag.done { background: var(--done-soft); color: var(--done); }
+.tag.partial { background: var(--partial-soft); color: var(--partial); }
+.tag.plan { border: 1px dashed var(--todo); color: var(--muted); }
+.tag.mod { background: var(--spec-soft); color: var(--spec); }
+.tag.high { background: var(--bad-soft); color: var(--bad); font-weight: 500; }
+.tag.med { background: var(--partial-soft); color: var(--partial); }
+.tag.low { background: var(--tint); color: var(--muted); }
+
+pre {
+  margin: 0;
+  background: var(--tint);
+  border: 1px solid var(--rule);
+  padding: 10px 12px;
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.5;
+  overflow-x: auto;
+  white-space: pre;
+  break-inside: avoid;
+}
+pre .c { color: var(--muted); }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 20px; align-items: start; }
+ol.steps { margin: 0; padding-left: 22px; display: grid; gap: 8px; }
+ol.steps li { padding-left: 4px; }
+ol.steps li::marker { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.note { border-left: 3px solid var(--partial); background: var(--partial-soft); padding: 8px 12px; font-size: 13px; break-inside: avoid; }
+.post { border: 1px solid var(--rule); border-radius: 4px; padding: 14px 16px; font-size: 13px; display: grid; gap: 8px; break-inside: avoid; }
+.post .title { font-weight: 600; }
+footer { font-size: 11.5px; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 12px; }
+
+@media (max-width: 640px) {
+  body { padding-inline: 0; padding-block: 0; }
+  .sheet { padding: 28px 16px 40px; box-shadow: none; }
+  h1 { font-size: 32px; }
+}
+@media print {
+  html, body { background: #FFFFFF; }
+  body { padding: 0; font-size: 10pt; }
+  .sheet { max-width: none; padding: 0; box-shadow: none; gap: 26px; }
+  .fig svg { min-width: 0; }
+  .fig, .tbl-wrap { overflow: visible; }
+  a { color: var(--ink); text-decoration: none; }
+  .pb { break-before: page; }
+}
+
+.why { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
+td.id, .id { font-family: var(--mono); font-size: 11px; white-space: nowrap; }
+table.req td:nth-child(2) { min-width: 300px; }
+.signoff .control td { height: 30px; }
+</style>
+</head>
+<body>
+<main class="sheet">
+
+<header class="titleblock">
+  <div class="eyebrow">COVESA vsomeip · Native DTLS 1.2 over UDP</div>
+  <h1>vsomeip DTLS Requirements Specification</h1>
+  <p class="lede">System and software requirements, architecture decisions, implementation steps and open issues for opt-in DTLS 1.2 on unicast SOME/IP over UDP.</p>
+  <table class="control">
+    <tr><th>Document ID</th><td class="mono">VSOMEIP-DTLS-SRS</td><th>Version</th><td>0.3 · Draft for review</td></tr>
+    <tr><th>Author</th><td>duonghvu</td><th>Date</th><td>17 Sep 2026</td></tr>
+    <tr><th>Reviewer</th><td>To be assigned</td><th>Approver</th><td>To be assigned</td></tr>
+    <tr><th>Branch</th><td class="mono">duonghvu/vsomeip · test/dtls-udp</td><th>Base</th><td>COVESA vsomeip 3.7.5 (<span class="mono">7875a1cb</span>)</td></tr>
+    <tr><th>Replaces</th><td colspan="3">vsomeip_DTLS_UDP_3_7_2_Plan.md rev 0.2 (Markdown plan; kept outside the repository)</td></tr>
+  </table>
+</header>
+
+<section>
+  <h2><span class="n">0</span>Revision history</h2>
+  <div class="tbl-wrap">
+  <table class="data">
+    <thead><tr><th>Rev</th><th>Date</th><th>Author</th><th>Change</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">0.1</td><td>07 May 2026</td><td>duonghvu</td><td>Initial plan pinned to vsomeip 3.7.2: ADRs, file inventory, phases.</td></tr>
+      <tr><td class="mono">0.2</td><td>07 May 2026</td><td>duonghvu</td><td>Implementation pass on <span class="mono">feature/dtls-udp</span>: backend, session, endpoint classes, simulation. OpenSSL minimum raised to 3.0.</td></tr>
+      <tr><td class="mono">0.3</td><td>17 Sep 2026</td><td>duonghvu</td><td>Converted to a requirements specification with IDs, status and verification. Test branch rebased by merge onto vsomeip 3.7.5. Code-review findings added.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">1</span>Scope</h2>
+  <p>This document specifies native DTLS 1.2 protection for unicast SOME/IP over UDP inside the vsomeip library. A service opts in through configuration; application source code does not change. SOME/IP service discovery multicast, TCP transport, local IPC and the SOME/IP wire format are out of scope and stay unchanged.</p>
+  <div class="two">
+    <div>
+      <h3>Out of scope</h3>
+      <ul class="plain">
+        <li>DTLS 1.3</li>
+        <li>DTLS or signing for SD multicast</li>
+        <li>HSM integration (possible later behind <code>dtls::backend</code>)</li>
+        <li>Automatic certificate rotation</li>
+        <li>Post-quantum cipher suites</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Terms</h3>
+      <ul class="plain">
+        <li><strong>DTLS</strong>: Datagram TLS, RFC 6347 (1.2)</li>
+        <li><strong>SD</strong>: SOME/IP Service Discovery</li>
+        <li><strong>EARS</strong>: Easy Approach to Requirements Syntax</li>
+        <li><strong>ADR</strong>: Architecture Decision Record</li>
+        <li><strong>Peer</strong>: a remote (IP address, UDP port) pair</li>
+      </ul>
+    </div>
+  </div>
+  <h3>Requirement conventions</h3>
+  <p>Requirements use EARS wording with “shall”. <strong>Status</strong> is the state on <code>test/dtls-udp</code> as of the document date. <strong>Verification</strong> names the planned method: UT unit test, CT component test, IT integration test (multi-ECU, fake sockets), QT qualification test (real processes and sockets), ST system test (bench), RV review or inspection.</p>
+  <div class="legend">
+    <span><span class="tag done">Implemented</span> in code and exercised</span>
+    <span><span class="tag partial">Partial</span> code exists but incomplete, unwired or unverified</span>
+    <span><span class="tag high">Not met</span> code contradicts the requirement</span>
+    <span><span class="tag plan">Open</span> not started</span>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">2</span>Constraints</h2>
+  <div class="tbl-wrap">
+  <table class="data">
+    <thead><tr><th>ID</th><th>Constraint</th><th>Source</th></tr></thead>
+    <tbody>
+      <tr><td class="id">CON-01</td><td>The existing <code>udp_server_endpoint_impl.*</code> and <code>udp_client_endpoint_impl.*</code> shall not be modified; DTLS lives in new classes alongside them.</td><td>ADR-001</td></tr>
+      <tr><td class="id">CON-02</td><td>Sources under <code>implementation/service_discovery/</code> shall not be modified.</td><td>ADR-005</td></tr>
+      <tr><td class="id">CON-03</td><td>The SOME/IP wire format and the public API in <code>interface/vsomeip/</code> shall not change.</td><td>Plan §4</td></tr>
+      <tr><td class="id">CON-04</td><td>Existing JSON keys shall not be renamed or removed; additions only.</td><td>ADR-004</td></tr>
+      <tr><td class="id">CON-05</td><td>New code shall not depend on <code>RS_DIAGNOSIS</code>.</td><td>3.7.2 deprecation</td></tr>
+      <tr><td class="id">CON-06</td><td>C++17, <code>vsomeip_v3</code> namespace, MPL-2.0 header, clang-format per CONTRIBUTING.md, no raw <code>new</code>/<code>delete</code>, logging only through <code>VSOMEIP_*</code>.</td><td>Project conventions</td></tr>
+      <tr><td class="id">CON-07</td><td>Files outside the plan's file inventory shall not be changed without recorded operator approval.</td><td>Plan §4</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section class="pb">
+  <h2><span class="n">3</span>System requirements</h2>
+  <div class="tbl-wrap">
+  <table class="data req">
+    <thead><tr><th>ID</th><th>Requirement</th><th>Verification</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td class="id">SYS-DTLS-001</td><td>The ECU shall protect unicast SOME/IP UDP traffic of configured services with mutually authenticated DTLS 1.2.</td><td>ST, QT</td><td><span class="tag partial">Partial</span></td></tr>
+      <tr><td class="id">SYS-DTLS-002</td><td>The ECU shall enable DTLS per service through configuration alone, without application source changes.</td><td>QT</td><td><span class="tag plan">Open</span></td></tr>
+      <tr><td class="id">SYS-DTLS-003</td><td>SOME/IP-SD multicast shall remain plaintext and interoperable with ECUs without DTLS.</td><td>QT, ST</td><td><span class="tag done">Implemented</span></td></tr>
+      <tr><td class="id">SYS-DTLS-004</td><td>If a peer presents a certificate not issued by the configured trust anchor, the ECU shall refuse communication with that peer.</td><td>QT, ST</td><td><span class="tag partial">Partial</span></td></tr>
+      <tr><td class="id">SYS-DTLS-005</td><td>The ECU shall bound the resources an unauthenticated source can consume during handshakes.</td><td>QT, ST</td><td><span class="tag high">Not met</span></td></tr>
+      <tr><td class="id">SYS-DTLS-006</td><td>Services not configured for DTLS, and builds without DTLS support, shall behave as in the upstream vsomeip release they are based on.</td><td>QT</td><td><span class="tag partial">Partial</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">4</span>Software requirements</h2>
+
+  <h3>4.1 Configuration</h3>
+  <div class="tbl-wrap">
+  <table class="data req">
+    <thead><tr><th>ID</th><th>Requirement</th><th>Traces to</th><th>Verification</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td class="id">SWR-DTLS-001</td><td>The configuration module shall parse an optional global <code>dtls</code> object with the keys <code>enable</code>, <code>version</code>, <code>cipher_list</code>, <code>certificate</code>, <code>private_key</code>, <code>ca_bundle</code>, <code>verify_peer</code>, <code>handshake_timeout_ms</code> and <code>cookie_exchange</code>, applying the defaults in Annex A for absent keys.</td><td class="id">SYS-002</td><td>UT</td><td><span class="tag partial">Partial</span><span class="why">Parser written; not called by configuration_impl</span></td></tr>
+      <tr><td class="id">SWR-DTLS-002</td><td>If <code>dtls.enable</code> is true and <code>certificate</code> or <code>private_key</code> is empty, the configuration module shall treat DTLS as disabled and log a warning.</td><td class="id">SYS-001</td><td>UT</td><td><span class="tag partial">Partial</span><span class="why">Disables; warning not wired</span></td></tr>
+      <tr><td class="id">SWR-DTLS-003</td><td>If <code>dtls.enable</code> and <code>verify_peer</code> are true and <code>ca_bundle</code> is empty, the configuration module shall treat DTLS as disabled and log a warning.</td><td class="id">SYS-004</td><td>UT</td><td><span class="tag partial">Partial</span><span class="why">Disables; warning not wired</span></td></tr>
+      <tr><td class="id">SWR-DTLS-004</td><td>The configuration module shall accept a per-service key <code>unreliable_secure</code> holding a UDP port number.</td><td class="id">SYS-002</td><td>UT</td><td><span class="tag plan">Open</span></td></tr>
+      <tr><td class="id">SWR-DTLS-005</td><td>When a service declares both <code>unreliable</code> and <code>unreliable_secure</code>, the configuration module shall log a warning.</td><td class="id">SYS-002</td><td>UT</td><td><span class="tag plan">Open</span></td></tr>
+      <tr><td class="id">SWR-DTLS-006</td><td>If <code>dtls.version</code> is not <code>"1.2"</code>, the configuration module shall log an error and treat DTLS as disabled.</td><td class="id">SYS-001</td><td>UT</td><td><span class="tag plan">Open</span><span class="why">Proposed</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>4.2 Endpoint creation</h3>
+  <div class="tbl-wrap">
+  <table class="data req">
+    <thead><tr><th>ID</th><th>Requirement</th><th>Traces to</th><th>Verification</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td class="id">SWR-DTLS-010</td><td>When <code>dtls.enable</code> is true and an offered service declares <code>unreliable_secure</code>, the endpoint manager shall create a DTLS UDP server endpoint bound to that port.</td><td class="id">SYS-001, 002</td><td>IT</td><td><span class="tag plan">Open</span></td></tr>
+      <tr><td class="id">SWR-DTLS-011</td><td>When the local configuration marks a remote service instance as <code>unreliable_secure</code>, the endpoint manager shall create a DTLS UDP client endpoint towards that instance's unreliable port.</td><td class="id">SYS-001, 002</td><td>IT</td><td><span class="tag plan">Open</span><span class="why">Depends on OI-01</span></td></tr>
+      <tr><td class="id">SWR-DTLS-012</td><td>When DTLS is disabled or invalid, the endpoint manager shall not create a plaintext endpoint on an <code>unreliable_secure</code> port.</td><td class="id">SYS-001</td><td>IT</td><td><span class="tag plan">Open</span><span class="why">Depends on OI-02</span></td></tr>
+      <tr><td class="id">SWR-DTLS-013</td><td>The routing manager shall mark a DTLS service's <code>serviceinfo</code> during the preparation stage, before the service is offered.</td><td class="id">SYS-002</td><td>IT</td><td><span class="tag plan">Open</span></td></tr>
+      <tr><td class="id">SWR-DTLS-014</td><td>DTLS endpoints shall not join multicast groups.</td><td class="id">SYS-003</td><td>CT, RV</td><td><span class="tag done">Implemented</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>4.3 Handshake and authentication</h3>
+  <div class="tbl-wrap">
+  <table class="data req">
+    <thead><tr><th>ID</th><th>Requirement</th><th>Traces to</th><th>Verification</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td class="id">SWR-DTLS-020</td><td>The DTLS endpoints shall negotiate DTLS 1.2 only.</td><td class="id">SYS-001</td><td>UT, QT</td><td><span class="tag done">Implemented</span><span class="why">Min and max protocol pinned</span></td></tr>
+      <tr><td class="id">SWR-DTLS-021</td><td>When <code>verify_peer</code> is true, the DTLS endpoints shall require a peer certificate and verify that it chains to <code>ca_bundle</code>.</td><td class="id">SYS-001, 004</td><td>UT, QT</td><td><span class="tag done">Implemented</span><span class="why">Simulation only</span></td></tr>
+      <tr><td class="id">SWR-DTLS-022</td><td>If peer verification fails, the endpoint shall abort the handshake, release the session and log the peer address and failure reason.</td><td class="id">SYS-004</td><td>UT, CT</td><td><span class="tag partial">Partial</span><span class="why">Server only; not compiled</span></td></tr>
+      <tr><td class="id">SWR-DTLS-023</td><td>When <code>cookie_exchange</code> is true, the server shall issue cookies derived from a keyed MAC over the client address and shall allocate handshake state only after a valid cookie is returned.</td><td class="id">SYS-005</td><td>UT, QT</td><td><span class="tag high">Not met</span><span class="why">Static cookie; session allocated first</span></td></tr>
+      <tr><td class="id">SWR-DTLS-024</td><td>If the random generator fails while creating the cookie secret, the server shall refuse handshakes and log an error.</td><td class="id">SYS-005</td><td>UT</td><td><span class="tag high">Not met</span><span class="why">Falls back to predictable bytes</span></td></tr>
+      <tr><td class="id">SWR-DTLS-025</td><td>The DTLS endpoints shall restrict cipher suites to <code>cipher_list</code>, default <code>ECDHE-ECDSA-AES128-GCM-SHA256</code>.</td><td class="id">SYS-001</td><td>UT</td><td><span class="tag done">Implemented</span></td></tr>
+      <tr><td class="id">SWR-DTLS-026</td><td>If a handshake does not complete within <code>handshake_timeout_ms</code>, the endpoint shall abort it, release the session and log a warning.</td><td class="id">SYS-005</td><td>UT</td><td><span class="tag high">Not met</span><span class="why">Value parsed, never used</span></td></tr>
+      <tr><td class="id">SWR-DTLS-027</td><td>While a handshake is in progress, the session shall retransmit flights using the DTLS timer and back-off.</td><td class="id">SYS-001</td><td>UT</td><td><span class="tag done">Implemented</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>4.4 Data path</h3>
+  <div class="tbl-wrap">
+  <table class="data req">
+    <thead><tr><th>ID</th><th>Requirement</th><th>Traces to</th><th>Verification</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td class="id">SWR-DTLS-030</td><td>The server endpoint shall keep one DTLS session per peer.</td><td class="id">SYS-001</td><td>CT</td><td><span class="tag partial">Partial</span><span class="why">Not compiled</span></td></tr>
+      <tr><td class="id">SWR-DTLS-031</td><td>After decryption, the endpoint shall deliver each SOME/IP message through the same receive path as the plain UDP endpoint.</td><td class="id">SYS-002</td><td>CT, IT</td><td><span class="tag partial">Partial</span><span class="why">Not compiled</span></td></tr>
+      <tr><td class="id">SWR-DTLS-032</td><td>The SOME/IP messages carried inside DTLS records shall be byte-identical to those sent over plain UDP.</td><td class="id">SYS-003, 006</td><td>QT</td><td><span class="tag partial">Partial</span></td></tr>
+      <tr><td class="id">SWR-DTLS-033</td><td>While the handshake is in progress, the client endpoint shall hold outgoing messages and send them in order once it completes.</td><td class="id">SYS-002</td><td>CT</td><td><span class="tag partial">Partial</span><span class="why">Retry not verified</span></td></tr>
+      <tr><td class="id">SWR-DTLS-034</td><td>When an endpoint stops, it shall send <code>close_notify</code> to each established peer and release all sessions.</td><td class="id">SYS-001</td><td>CT</td><td><span class="tag partial">Partial</span><span class="why">Server; not compiled</span></td></tr>
+      <tr><td class="id">SWR-DTLS-035</td><td>The endpoints shall not emit DTLS records larger than the configured path MTU; larger SOME/IP messages shall use SOME/IP-TP.</td><td class="id">SYS-001</td><td>QT, ST</td><td><span class="tag partial">Partial</span><span class="why">MTU fixed at 1500</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>4.5 Robustness, errors and logging</h3>
+  <div class="tbl-wrap">
+  <table class="data req">
+    <thead><tr><th>ID</th><th>Requirement</th><th>Traces to</th><th>Verification</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td class="id">SWR-DTLS-040</td><td>The server endpoint shall limit concurrent sessions to a configurable maximum and evict sessions idle longer than a configurable time.</td><td class="id">SYS-005</td><td>CT, QT</td><td><span class="tag high">Not met</span><span class="why">Unbounded map</span></td></tr>
+      <tr><td class="id">SWR-DTLS-041</td><td>Endpoints and sessions shall hold no reference cycles; both shall be released after stop.</td><td class="id">SYS-006</td><td>CT (ASan/LSan)</td><td><span class="tag high">Not met</span><span class="why">shared_from_this in callbacks</span></td></tr>
+      <tr><td class="id">SWR-DTLS-042</td><td>When a peer restarts, the client endpoint shall establish a new session without application involvement.</td><td class="id">SYS-001</td><td>IT, ST</td><td><span class="tag plan">Open</span></td></tr>
+      <tr><td class="id">SWR-DTLS-050</td><td>The crypto backend shall report failures as result codes; no exception shall cross an endpoint boundary.</td><td class="id">SYS-006</td><td>UT, RV</td><td><span class="tag done">Implemented</span></td></tr>
+      <tr><td class="id">SWR-DTLS-051</td><td>The library shall not log private keys, session secrets or decrypted payload bytes.</td><td class="id">SYS-001</td><td>RV</td><td><span class="tag partial">Partial</span><span class="why">Needs review</span></td></tr>
+      <tr><td class="id">SWR-DTLS-052</td><td>If a handshake fails, the log entry shall contain the peer address and, if available, the peer certificate subject.</td><td class="id">SYS-004</td><td>CT</td><td><span class="tag partial">Partial</span><span class="why">Subject not logged</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>4.6 Build and compatibility</h3>
+  <div class="tbl-wrap">
+  <table class="data req">
+    <thead><tr><th>ID</th><th>Requirement</th><th>Traces to</th><th>Verification</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td class="id">SWR-DTLS-060</td><td>The build shall provide a CMake option <code>ENABLE_DTLS</code>, default OFF.</td><td class="id">SYS-006</td><td>RV</td><td><span class="tag done">Implemented</span></td></tr>
+      <tr><td class="id">SWR-DTLS-061</td><td>When <code>ENABLE_DTLS</code> is OFF, the library shall pass the upstream test suite unchanged.</td><td class="id">SYS-006</td><td>QT</td><td><span class="tag partial">Partial</span><span class="why">Code guarded; suite not run</span></td></tr>
+      <tr><td class="id">SWR-DTLS-062</td><td>When <code>ENABLE_DTLS</code> is ON, the library shall build, and configuration shall fail with a clear message if OpenSSL 3 is not found.</td><td class="id">SYS-001</td><td>QT</td><td><span class="tag high">Not met</span><span class="why">Endpoints fail to compile</span></td></tr>
+      <tr><td class="id">SWR-DTLS-063</td><td>Only the backend implementation shall include crypto library headers.</td><td class="id">ADR-002</td><td>RV</td><td><span class="tag done">Implemented</span></td></tr>
+      <tr><td class="id">SWR-DTLS-064</td><td>Cipher suites in configuration shall use IANA names, translated by each backend.</td><td class="id">ADR-002</td><td>UT</td><td><span class="tag plan">Open</span><span class="why">Proposed</span></td></tr>
+      <tr><td class="id">SWR-DTLS-070</td><td>DTLS endpoints shall work in classic routing mode. If a conflict with hybrid mode is found, DTLS shall be disabled in hybrid mode with a warning instead of changing hybrid-mode behaviour.</td><td class="id">ADR-006</td><td>IT</td><td><span class="tag plan">Open</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section class="pb">
+  <h2><span class="n">5</span>Architecture decisions</h2>
+  <div class="tbl-wrap">
+  <table class="data">
+    <thead><tr><th>ADR</th><th>Decision</th><th>Rationale</th></tr></thead>
+    <tbody>
+      <tr><td class="id">ADR-001</td><td>New <code>dtls_udp_server/client_endpoint_impl</code> classes next to the UDP endpoints; existing endpoints untouched.</td><td>Small blast radius; one CMake switch removes it; reviewable upstream.</td></tr>
+      <tr><td class="id">ADR-002</td><td>OpenSSL 3 first, behind a <code>dtls::backend</code> interface.</td><td>Most mature DTLS stack; allows Mbed TLS or HSM-backed crypto later.</td></tr>
+      <tr><td class="id">ADR-003</td><td>One DTLS session per peer (IP, port); the client endpoint holds one session.</td><td>Matches SOME/IP unicast usage.</td></tr>
+      <tr><td class="id">ADR-004</td><td>Opt-in per service with <code>unreliable_secure</code>; <code>unreliable</code> unchanged.</td><td>Backward compatible; staged rollout; no application changes.</td></tr>
+      <tr><td class="id">ADR-005</td><td>SD multicast stays plaintext.</td><td>No per-peer session exists for multicast; SD signing is future work.</td></tr>
+      <tr><td class="id">ADR-006</td><td>Parity with hybrid mode; on conflict, disable DTLS in hybrid mode.</td><td>Hybrid mode is new upstream behaviour and must not be destabilised.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">6</span>Implementation steps</h2>
+  <h3>6.1 Phase status</h3>
+  <div class="tbl-wrap">
+  <table class="data">
+    <thead><tr><th>Phase</th><th>Goal</th><th>Exit criterion</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td><strong>P1</strong> Baseline</td><td>Build upstream on Linux, record test baseline, observe hybrid mode</td><td>Library builds; baseline test list and hybrid-mode behaviour recorded</td><td><span class="tag plan">Open</span><span class="why">Only macOS used so far; now on 3.7.5</span></td></tr>
+      <tr><td><strong>P2</strong> Build switch</td><td><code>ENABLE_DTLS</code> option and source skeletons</td><td>Builds with ON and OFF; OFF unchanged</td><td><span class="tag partial">Partial</span><span class="why">ON fails to compile</span></td></tr>
+      <tr><td><strong>P3</strong> Crypto core</td><td>OpenSSL backend and per-peer session</td><td>Loopback handshake and 64-byte payload in a unit test</td><td><span class="tag partial">Partial</span><span class="why">Proven in simulation; no ctest unit test</span></td></tr>
+      <tr><td><strong>P4</strong> Server endpoint</td><td>Accept, handshake, decrypt, deliver</td><td>Registered application receives a message over DTLS</td><td><span class="tag partial">Partial</span><span class="why">Written, not compiled</span></td></tr>
+      <tr><td><strong>P5</strong> Client endpoint</td><td>Connect, handshake, request/response</td><td>One request and response over DTLS</td><td><span class="tag partial">Partial</span><span class="why">Written, not compiled</span></td></tr>
+      <tr><td><strong>P6</strong> Wiring</td><td>Config, factory and routing integration; <code>hello_world_dtls</code></td><td>hello_world runs over DTLS through JSON only</td><td><span class="tag plan">Open</span></td></tr>
+      <tr><td><strong>P7</strong> Robustness and docs</td><td>Timeouts, revocation, MTU, resumption, close_notify, user docs</td><td>All tests green; docs merged; integration package archived</td><td><span class="tag plan">Open</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>6.2 Ordered next steps</h3>
+  <ol class="steps">
+    <li><strong>Record the Linux baseline on 3.7.5.</strong> Build in the repository Dockerfile (add <code>libssl-dev</code>) with <code>ENABLE_DTLS=OFF</code>; run <code>ctest -R '^unit_'</code> and the fake-socket tests; save the results. <span class="why">P1 · SWR-DTLS-061</span></li>
+    <li><strong>Make the endpoints compile against 3.7.5.</strong> Create sockets through the injected <code>abstract_socket_factory</code>; update <code>tp_segmentation_enabled</code> to take <code>service_instance_t</code>; implement any new base-class hooks. <span class="why">P2, P4, P5 · SWR-DTLS-062</span></li>
+    <li><strong>Correct the cookie design.</strong> Pass the peer address into <code>create_server_session</code>; compute the cookie as an HMAC of the address with a rotating random secret; refuse handshakes if the random generator fails; don't allocate a session before the cookie is verified. <span class="why">SWR-DTLS-023, 024</span></li>
+    <li><strong>Bound session state.</strong> Enforce <code>handshake_timeout_ms</code>, cap sessions, evict idle ones; make MTU configurable. <span class="why">SWR-DTLS-026, 035, 040</span></li>
+    <li><strong>Remove reference cycles.</strong> Capture <code>weak_ptr</code> in session callbacks. <span class="why">SWR-DTLS-041</span></li>
+    <li><strong>Add unit tests</strong> <code>unit_dtls_backend</code>, <code>unit_dtls_session</code>, <code>unit_dtls_configuration</code> in <code>test/unit_tests/dtls_tests/</code>, including wrong CA, expired certificate, loss and reordering. <span class="why">P3 exit · SWR-DTLS-001…027</span></li>
+    <li><strong>Wire the configuration.</strong> <code>configuration_impl::load_dtls</code>, per-service <code>unreliable_secure</code>, getters and warnings. <span class="why">SWR-DTLS-001…006</span></li>
+    <li><strong>Wire endpoint creation and routing.</strong> Factory branch in <code>endpoint_manager_impl</code>; <code>serviceinfo</code> mark in <code>routing_manager_impl</code>; decide OI-01 and OI-02 first. <span class="why">SWR-DTLS-010…013</span></li>
+    <li><strong>Add component and multi-ECU tests</strong> with fake sockets, including hybrid mode, and the <code>hello_world_dtls</code> example. <span class="why">P6 exit · SWR-DTLS-030…034, 070</span></li>
+    <li><strong>Add qualification tests</strong> on two containers: interop with <code>openssl s_client/s_server</code>, tcpdump check of SD and service ports, 1000-handshake stress, sanitizers, ON and OFF suites. <span class="why">P7 · SYS-DTLS-001…006</span></li>
+    <li><strong>Document and publish.</strong> Update <code>vsomeipConfiguration.md</code> and the user guide; add the CI matrix for <code>ENABLE_DTLS</code> ON and OFF; request community review. <span class="why">P7</span></li>
+    <li><strong>Bench validation</strong> on target ECUs: automotive Ethernet MTU, OEM PKI, revocation, peer reboot, CPU and latency budget. <span class="why">SYS.5</span></li>
+  </ol>
+</section>
+
+<section class="pb">
+  <h2><span class="n">7</span>Verification plan</h2>
+  <div class="tbl-wrap">
+  <table class="data">
+    <thead><tr><th>Method</th><th>Level</th><th>Environment</th><th>Location</th><th>Entry → exit</th></tr></thead>
+    <tbody>
+      <tr><td class="id">UT</td><td>SWE.4 unit</td><td>In-process, no sockets; macOS, Linux, CI</td><td><code>test/unit_tests/dtls_tests/</code></td><td>Code compiles → all pass, ASan/UBSan clean</td></tr>
+      <tr><td class="id">CT</td><td>SWE.5 component</td><td>Fake socket factory; Linux, CI</td><td><code>test/unit_tests/endpoint_tests/</code></td><td>UT green → endpoint contract met, no leaks</td></tr>
+      <tr><td class="id">IT</td><td>SWE.5 integration</td><td>Multiple ECUs in one process with fault injection; Linux, CI</td><td><code>test/network_tests/fake_socket_tests/</code></td><td>CT green → offer, subscribe and request over DTLS; hybrid mode checked</td></tr>
+      <tr><td class="id">QT</td><td>SWE.6 qualification</td><td>Two containers, real sockets; nightly</td><td><code>test/network_tests/dtls_tests/</code>, <code>zuul/network-tests</code></td><td>IT green → every SWR has a passing test; ON and OFF suites green</td></tr>
+      <tr><td class="id">ST</td><td>SYS.5 system</td><td>Target ECUs on bench</td><td>Outside repository</td><td>QT green → every SYS acceptance criterion met</td></tr>
+      <tr><td class="id">RV</td><td>All</td><td>Code review, static analysis, MISRA C++ baseline</td><td>Pull requests</td><td>Security reviewer signs off changes to the backend and session</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">8</span>Open issues</h2>
+  <div class="tbl-wrap">
+  <table class="data">
+    <thead><tr><th>ID</th><th>Question</th><th>Options</th><th>Proposal</th></tr></thead>
+    <tbody>
+      <tr><td class="id">OI-01</td><td>How does a client learn that a remote service instance requires DTLS?</td><td>(a) local config marks remote instances <code>unreliable_secure</code>; (b) new SD endpoint option</td><td>(a): (b) changes SD, which CON-02 forbids</td></tr>
+      <tr><td class="id">OI-02</td><td>What happens when <code>unreliable_secure</code> is set but DTLS is disabled or invalid?</td><td>(a) fail closed, don't offer; (b) fall back to plaintext</td><td>(a) with an error log; needs security owner decision</td></tr>
+      <tr><td class="id">OI-03</td><td>How does the server send events to subscribers without an established session?</td><td>(a) queue until the client handshakes; (b) client connects on subscribe</td><td>(b), with (a) as a bounded fallback</td></tr>
+      <tr><td class="id">OI-04</td><td>Should the peer certificate identity be bound to the expected ECU per service?</td><td>(a) chain check only; (b) also match subject or SAN</td><td>(b) as an optional per-service setting</td></tr>
+      <tr><td class="id">OI-05</td><td>Certificate revocation scope</td><td>(a) CRL file; (b) OCSP stub; (c) out of scope</td><td>(a) for the first release</td></tr>
+      <tr><td class="id">OI-06</td><td>Baseline OpenSSL version</td><td>3.0 (end of life Sep 2026) or 3.5 LTS</td><td>Document 3.5 LTS; keep 3.0 as build minimum</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">A</span>Annex A: <code>dtls</code> configuration keys</h2>
+  <div class="tbl-wrap">
+  <table class="data">
+    <thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">enable</td><td>bool string</td><td class="mono">"false"</td><td>Master switch</td></tr>
+      <tr><td class="mono">version</td><td>string</td><td class="mono">"1.2"</td><td>Only 1.2 supported</td></tr>
+      <tr><td class="mono">cipher_list</td><td>string</td><td class="mono">"ECDHE-ECDSA-AES128-GCM-SHA256"</td><td>Currently OpenSSL syntax (see SWR-DTLS-064)</td></tr>
+      <tr><td class="mono">certificate</td><td>path</td><td>none</td><td>PEM, ECU identity</td></tr>
+      <tr><td class="mono">private_key</td><td>path</td><td>none</td><td>PEM; may be HSM-backed in other backends</td></tr>
+      <tr><td class="mono">ca_bundle</td><td>path</td><td>none</td><td>PEM, trusted issuers</td></tr>
+      <tr><td class="mono">verify_peer</td><td>bool string</td><td class="mono">"true"</td><td>Mutual authentication; <code>"false"</code> needs a written justification</td></tr>
+      <tr><td class="mono">handshake_timeout_ms</td><td>uint</td><td class="mono">5000</td><td>Handshake budget</td></tr>
+      <tr><td class="mono">cookie_exchange</td><td>bool string</td><td class="mono">"true"</td><td>HelloVerifyRequest (DoS mitigation)</td></tr>
+      <tr><td class="mono">unreliable_secure</td><td>port (per service)</td><td>none</td><td>DTLS UDP port for the service</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">B</span>References</h2>
+  <ul class="plain">
+    <li>RFC 6347, Datagram Transport Layer Security Version 1.2</li>
+    <li>RFC 9146, Connection Identifier for DTLS 1.2</li>
+    <li>COVESA vsomeip 3.7.5 source and CONTRIBUTING.md</li>
+    <li>vsomeip_DTLS_Summary.pdf (VSOMEIP-DTLS-SUM)</li>
+    <li>OpenSSL 3 documentation, DTLS_method(3)</li>
+    <li>Automotive SPICE PAM 3.1: SYS.2, SWE.1–SWE.6, SYS.5</li>
+  </ul>
+</section>
+
+<section class="signoff">
+  <h2><span class="n">C</span>Approval</h2>
+  <div class="tbl-wrap">
+  <table class="control">
+    <tr><th>Role</th><th>Name</th><th>Date</th><th>Signature</th></tr>
+    <tr><td>Author</td><td>duonghvu</td><td>17 Sep 2026</td><td></td></tr>
+    <tr><td>Technical reviewer</td><td></td><td></td><td></td></tr>
+    <tr><td>Security reviewer</td><td></td><td></td><td></td></tr>
+    <tr><td>Approver</td><td></td><td></td><td></td></tr>
+  </table>
+  </div>
+</section>
+
+<footer>
+  Author: duonghvu · Drafted with Claude Code assistance · Status values reflect a code reading of <span class="mono">test/dtls-udp</span> on 17 Sep 2026, not test results.
+</footer>
+
+</main>
+</body>
+</html>

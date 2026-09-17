@@ -25,6 +25,87 @@ The stack consists out of:
 * a shared library for SOME/IP's service discovery (`libvsomeip3-sd.so`)
 * a shared library for SOME/IP's E2E protection module (`libvsomeip3-e2e.so`)
 
+##### DTLS 1.2 over UDP (experimental, branch `test/dtls-udp`)
+
+> **Status: experimental, not for production.** The crypto core (OpenSSL 3 backend and per-peer session) passes a standalone round-trip simulation. The DTLS endpoint classes do not compile yet with `-DENABLE_DTLS=ON`, the configuration/factory/routing wiring is not done, and there are known security defects (see the summary, §7). Feedback and testing are welcome.
+
+This branch adds opt-in DTLS 1.2 protection for unicast SOME/IP over UDP. A service enables it through configuration; application code does not change. SOME/IP-SD multicast stays plaintext.
+
+###### Documents
+
+| Document | Contents |
+|---|---|
+| [documentation/dtls/vsomeip_DTLS_Summary.pdf](documentation/dtls/vsomeip_DTLS_Summary.pdf) ([HTML](documentation/dtls/vsomeip_DTLS_Summary.html)) | Architecture, software file structure, verification approach, known issues, how to give feedback |
+| [documentation/dtls/vsomeip_DTLS_Requirements_Specification.pdf](documentation/dtls/vsomeip_DTLS_Requirements_Specification.pdf) ([HTML](documentation/dtls/vsomeip_DTLS_Requirements_Specification.html)) | System and software requirements with status, architecture decisions, implementation steps, open issues |
+| [DTLS_TESTING.md](DTLS_TESTING.md) | Step-by-step test guide for Ubuntu |
+| [examples/dtls_simulation/readme.md](examples/dtls_simulation/readme.md) | Standalone DTLS round-trip simulation |
+
+###### Quick start
+
+Standalone simulation (Linux or macOS, needs OpenSSL 3 and Boost.Asio; it does not build `libvsomeip3`):
+
+```bash
+cd examples/dtls_simulation
+./run_simulation.sh --count 5     # expect "DTLS simulation: PASS"
+```
+
+Library build (Linux). DTLS is off by default:
+
+```bash
+cmake -Bbuild -DENABLE_DTLS=OFF -DGTEST_ROOT=/usr/src/googletest .   # must behave like upstream
+cmake --build build --target build_tests
+ctest --test-dir build -R '^unit_' --output-on-failure
+
+cmake -Bbuild-dtls -DENABLE_DTLS=ON .    # requires OpenSSL >= 3.0 (3.5 LTS recommended)
+```
+
+###### Configuration
+
+```json
+"dtls": {
+    "enable": "true",
+    "certificate": "/etc/vsomeip/ecu.pem",
+    "private_key": "/etc/vsomeip/ecu.key",
+    "ca_bundle": "/etc/vsomeip/ca.pem",
+    "verify_peer": "true",
+    "cookie_exchange": "true"
+},
+"services": [
+    { "service": "0x2444", "instance": "0x0001", "unreliable_secure": "32444" }
+]
+```
+
+All keys and defaults are listed in Annex A of the requirements specification. Never use the certificates produced by `gen_test_certs.sh` outside tests.
+
+###### Development guidelines
+
+* **Separate classes.** DTLS lives in `dtls_*` files. Do not modify `udp_server_endpoint_impl.*`, `udp_client_endpoint_impl.*` or `implementation/service_discovery/*`.
+* **One crypto boundary.** Only `dtls_backend_openssl.cpp` includes OpenSSL; everything else uses `dtls::backend`.
+* **Compile-time switch.** Guard all DTLS code with `VSOMEIP_HAS_DTLS` (set by `-DENABLE_DTLS=ON`). With the option OFF the library must behave like upstream.
+* **Errors.** Crypto failures return `dtls::result_e` and are logged with `VSOMEIP_ERROR`; never throw across endpoint boundaries. Never log keys, secrets or decrypted payloads.
+* **Resources.** Get sockets and timers from `abstract_socket_factory`; capture `weak_ptr` in session callbacks; bound per-peer state before a handshake completes.
+* **Style.** Follow [CONTRIBUTING.md](./CONTRIBUTING.md) (clang-format pre-commit hook, `_argument`, `member_`). New files carry the MPL-2.0 header.
+* **Tests.** Name unit tests `unit_dtls_*` so the CI filter `^unit_` runs them. Link each test to a requirement ID (`SWR-DTLS-nnn`).
+* **Commits.** `dtls(udp): <what>`, one logical change per commit, with `Implements:` / `Verified-by:` lines naming requirement and test IDs.
+
+###### Testing levels
+
+| Level | Scope | Location |
+|---|---|---|
+| Unit | Backend, session, config parser; in-memory, no sockets | `test/unit_tests/dtls_tests/` (planned) |
+| Component | One DTLS endpoint with fake sockets | `test/unit_tests/endpoint_tests/` |
+| Integration | Several ECUs in one process with fault injection, hybrid mode | `test/network_tests/fake_socket_tests/` |
+| Qualification | Real processes on two containers, `openssl s_client`/`s_server` interop, stress, DTLS ON and OFF | `test/network_tests/dtls_tests/` (planned), `zuul/network-tests` |
+
+###### Feedback and community review
+
+Reports from other platforms are the most useful help right now. Please include OS, compiler, Boost version, OpenSSL version (`openssl version`), the exact command, the result, and the logs (`examples/dtls_simulation/build/*.log`).
+
+* **Issues on this fork**: [duonghvu/vsomeip issues](https://github.com/duonghvu/vsomeip/issues) for problems with this branch.
+* **Design discussion with the vsomeip community**: [COVESA/vsomeip Discussions](https://github.com/COVESA/vsomeip/discussions). Link this branch and the two PDFs, and ask the open questions from §8 of the requirements specification.
+* **Community call**: COVESA holds a monthly vsomeip meeting; ask for an agenda slot through the [COVESA wiki](https://wiki.covesa.global/display/WIK4/VSOMEIP+Meeting+Notes).
+* **Upstream contribution**: only after the known issues are fixed and tests are green, as a series of small pull requests against `COVESA/vsomeip:master`. Do not open issues on COVESA/vsomeip for this experimental branch.
+
 ##### Build Instructions for Linux
 
 ###### Dependencies
