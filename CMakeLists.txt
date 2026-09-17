@@ -22,6 +22,7 @@ set (CMAKE_VERBOSE_MAKEFILE off)
 
 option(ENABLE_THREAD_SANITIZER "Enable use of TSAN" OFF)
 option(ENABLE_SANITIZERS "Enable ASAN/LSAN/UBSAN, not compatible with ENABLE_THREAD_SANITIZER" OFF)
+option(ENABLE_DTLS "Enable DTLS 1.2 over UDP support (requires OpenSSL >= 3.0)" OFF)
 
 if (NOT GTEST_ROOT)
     if (DEFINED ENV{GTEST_ROOT})
@@ -259,6 +260,20 @@ if (VSOMEIP_ENABLE_MULTIPLE_ROUTING_MANAGERS EQUAL 1)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DVSOMEIP_ENABLE_MULTIPLE_ROUTING_MANAGERS")
 endif ()
 
+# DTLS over UDP (OpenSSL 3.0+)
+# When OFF, the dtls_*.cpp sources still compile (the cpp files are #ifdef'd
+# behind VSOMEIP_HAS_DTLS so they emit no symbols). When ON, OpenSSL 3 is
+# resolved and linked against the base library.
+if (ENABLE_DTLS)
+    find_package(OpenSSL 3.0 REQUIRED)
+    if (OpenSSL_FOUND)
+        message(STATUS "DTLS enabled: OpenSSL ${OPENSSL_VERSION} from ${OPENSSL_INCLUDE_DIR}")
+        add_definitions(-DVSOMEIP_HAS_DTLS)
+    else()
+        message(FATAL_ERROR "ENABLE_DTLS=ON but OpenSSL 3.0+ was not found")
+    endif()
+endif ()
+
 ################################################################################
 # Directories
 ################################################################################
@@ -424,6 +439,11 @@ target_include_directories(${VSOMEIP_NAME} INTERFACE
 # build host paths as of writing, which also makes this important as it breaks
 # the build.
 target_link_libraries(${VSOMEIP_NAME} PRIVATE ${Boost_LIBRARIES} ${USE_RT} ${DL_LIBRARY} ${DLT_LIBRARIES} ${SystemD_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+
+if (ENABLE_DTLS)
+    target_link_libraries(${VSOMEIP_NAME}-internal OpenSSL::SSL OpenSSL::Crypto)
+    target_link_libraries(${VSOMEIP_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+endif ()
 
 if(NOT WIN32)
     target_link_options(${VSOMEIP_NAME} PRIVATE "LINKER:-as-needed")
